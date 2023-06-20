@@ -4,6 +4,7 @@ const {
   signupUser,
   updatePassword,
   deleteUser,
+  getOneUser,
 } = require("../controllers/user");
 
 const app = express.Router();
@@ -14,6 +15,7 @@ app.post("/signup", signupUser);
 const requireAuth = require("../middlewares/requireAuth");
 app.use(requireAuth);
 
+app.get("/userInfo/:id", getOneUser);
 app.put("/updatepassword", updatePassword);
 app.delete("/:id", deleteUser);
 
