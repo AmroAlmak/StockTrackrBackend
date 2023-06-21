@@ -102,7 +102,7 @@ const searchStockInfo = async (req, res) => {
 
     res.status(404).json({ msg: "ther's no such stockInfo" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ error: error.message });
   }
 };
 
