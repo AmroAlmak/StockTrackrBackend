@@ -9,7 +9,7 @@ const {
 } = require("../controllers/stockInfo");
 
 const requireAuth = require("../middlewares/requireAuth");
-app.use(requireAuth);
+// app.use(requireAuth);
 
 app.route("/").get(getAllStockInfos).post(createStockInfo);
 app.route("/:id").put(updateStockInfo).delete(deleteStockInfo);

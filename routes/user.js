@@ -13,7 +13,7 @@ app.post("/login", loginUser);
 app.post("/signup", signupUser);
 
 const requireAuth = require("../middlewares/requireAuth");
-app.use(requireAuth);
+// app.use(requireAuth);
 
 app.get("/userInfo/:id", getOneUser);
 app.put("/updatepassword", updatePassword);
