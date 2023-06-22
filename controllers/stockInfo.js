@@ -13,7 +13,7 @@ const getAllStockInfos = async (req, res) => {
 };
 
 const createStockInfo = async (req, res) => {
-  const { name, category, quantity, price, totalPrice } = req.body;
+  const { name, category, quantity, price, totalPrice, imageUrl } = req.body;
 
   let emptyFields = [];
 
@@ -32,6 +32,10 @@ const createStockInfo = async (req, res) => {
   if (!totalPrice) {
     emptyFields.push("totalPrice");
   }
+  if (!imageUrl) {
+    emptyFields.push("imageUrl");
+  }
+
 
   if (emptyFields.length > 0) {
     return res.status(400).json({ error: "Please fill all the fields" });
@@ -44,6 +48,7 @@ const createStockInfo = async (req, res) => {
       quantity,
       price,
       totalPrice,
+      imageUrl
     });
     res.status(201).json(stockInfo);
   } catch (error) {

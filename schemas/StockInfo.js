@@ -20,6 +20,10 @@ const stockInfoSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  imageUrl: {
+    type: String,
+    required: true,
+  }
 });
 
 module.exports = mongoose.model("StockInfo", stockInfoSchema);
