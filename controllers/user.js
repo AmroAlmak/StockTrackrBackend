@@ -47,21 +47,21 @@ const deleteUser = async (req, res) => {
 };
 
 const updatePassword = async (req, res) => {
-  const { userId, currentPassword, newPassword } = req.body;
+  const { userId, currentpassword, newpassword } = req.body;
 
   try {
     // Find the user by their ID
     const user = await User.findById(userId);
 
     // Verify if the current password matches the stored password
-    const isPasswordMatch = await user.comparePassword(currentPassword);
+    const isPasswordMatch = await user.comparePassword(currentpassword);
     if (!isPasswordMatch) {
       return res.status(401).json({ error: "Current password is incorrect" });
     }
 
     // Hash the new password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const hashedPassword = await bcrypt.hash(newpassword, salt);
 
     // Set the new hashed password
     user.password = hashedPassword;
