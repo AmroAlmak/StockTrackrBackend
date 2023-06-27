@@ -13,7 +13,7 @@ const getAllStockInfos = async (req, res) => {
 };
 
 const createStockInfo = async (req, res) => {
-  const { name, category, quantity, price, totalPrice, imageUrl } = req.body;
+  const { name, variants, category, quantity, price, totalPrice, imageUrl } = req.body;
 
   let emptyFields = [];
 
@@ -22,6 +22,9 @@ const createStockInfo = async (req, res) => {
   }
   if (!category) {
     emptyFields.push("category");
+  }
+  if (!variants) {
+    emptyFields.push("variants");
   }
   if (!quantity) {
     emptyFields.push("quantity");
@@ -45,6 +48,7 @@ const createStockInfo = async (req, res) => {
     const stockInfo = await StockInfo.create({
       name,
       category,
+      variants,
       quantity,
       price,
       totalPrice,
@@ -59,10 +63,10 @@ const createStockInfo = async (req, res) => {
 const updateStockInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, quantity, price, totalPrice } = req.body;
+    const { name, category, variants, quantity, price, totalPrice } = req.body;
     const stockInfo = await StockInfo.findByIdAndUpdate(
       id,
-      { name, category, quantity, price, totalPrice },
+      { name, variants, category, quantity, price, totalPrice },
       { new: true }
     );
     if (stockInfo) {
