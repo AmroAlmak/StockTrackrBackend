@@ -28,7 +28,6 @@ const stockInfoSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  variants: [variantSchema],
   category: {
     type: String,
     required: true,
