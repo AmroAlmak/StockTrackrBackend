@@ -22,6 +22,26 @@ app.get("/", (req, res) => {
   res.send("Welcome to the server");
 });
 
+app.get('/product/:itemId', async function(req, res) {
+  const itemId = req.params.itemId;
+
+  // Fetch product from the database using the itemId
+  try {
+     
+      const Product = await product.findById(itemId);
+
+      if (!Product) {
+          return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(Product);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
 app.listen(Port, () => {
   console.log(`Server is running on port ${Port}`.black.bgWhite);
 });

@@ -12,6 +12,21 @@ const getAllStockInfos = async (req, res) => {
   }
 };
 
+const getStockInfoById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const stockInfo = await StockInfo.findById(id);
+    if (stockInfo) {
+      res.status(200).json(stockInfo);
+    } else {
+      res.status(404).json({ message: "Stock info not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 const createStockInfo = async (req, res) => {
   const { name, variants, category, quantity, price, totalPrice, imageUrl } =
     req.body;
@@ -118,7 +133,9 @@ const searchStockInfo = async (req, res) => {
 module.exports = {
   getAllStockInfos,
   createStockInfo,
+  getStockInfoById, 
   updateStockInfo,
   deleteStockInfo,
   searchStockInfo,
 };
+
