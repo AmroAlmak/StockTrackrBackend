@@ -154,24 +154,23 @@ const deleteStockInfo = async (req, res) => {
 };
 
 const deleteVariant = async (req, res) => {
+  const { id, variantId } = req.params;
+
+  const result = await StockInfo.findOne(
+    { "variants._id": variantId },
+    { "variants.$": 1 }
+  );
+
+  const product = await StockInfo.findById(id);
+
+  let totalPrice = _.sumBy(product.variants, (el) => el.quantity * el.price);
+
+  totalPrice -= result.variants[0].quantity * result.variants[0].price;
+
+  let quantity = _.sumBy(product.variants, (el) => el.quantity);
+  quantity -= result.variants[0].quantity;
+
   try {
-    const { id, variantId } = req.params;
-
-    const parentQuery = {
-      _id: new mongoose.Types.ObjectId(id),
-      "variants._id": new mongoose.Types.ObjectId(variantId),
-    };
-    const result = await StockInfo.findOne(parentQuery);
-
-    const product = await StockInfo.findById(id);
-
-    let totalPrice = _.sumBy(product.variants, (el) => el.quantity * el.price);
-
-    totalPrice -= result.variants[0].quantity * result.variants[0].price;
-
-    let quantity = _.sumBy(product.variants, (el) => el.quantity);
-    quantity -= result.variants[0].quantity;
-
     const response = await StockInfo.updateOne(
       { _id: id },
       {
