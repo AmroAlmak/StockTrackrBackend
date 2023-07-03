@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const StockInfo = require("../schemas/StockInfo");
+const mongoose = require("mongoose");
 
 const getAllStockInfos = async (req, res) => {
   try {
@@ -156,12 +157,20 @@ const deleteVariant = async (req, res) => {
   try {
     const { id, variantId } = req.params;
 
+    const parentQuery = {
+      _id: new mongoose.Types.ObjectId(id),
+      "variants._id": new mongoose.Types.ObjectId(variantId),
+    };
+    const result = await StockInfo.findOne(parentQuery);
+
     const product = await StockInfo.findById(id);
-    const variants = _.filter(product.variants, (el) => el._id !== variantId);
 
-    let totalPrice = _.sumBy(variants, (el) => el.quantity * el.price);
+    let totalPrice = _.sumBy(product.variants, (el) => el.quantity * el.price);
 
-    let quantity = _.sumBy(variants, (el) => el.quantity);
+    totalPrice -= result.variants[0].quantity * result.variants[0].price;
+
+    let quantity = _.sumBy(product.variants, (el) => el.quantity);
+    quantity -= result.variants[0].quantity;
 
     const response = await StockInfo.updateOne(
       { _id: id },
@@ -175,7 +184,9 @@ const deleteVariant = async (req, res) => {
     } else {
       res.status(404).json({ message: "Variant not found" });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const searchStockInfo = async (req, res) => {
