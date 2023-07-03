@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const StockInfo = require("../schemas/StockInfo");
 
 const getAllStockInfos = async (req, res) => {
@@ -26,10 +27,8 @@ const getStockInfoById = async (req, res) => {
   }
 };
 
-
 const createStockInfo = async (req, res) => {
-  const { name, variants, category, quantity, price, totalPrice, imageUrl } =
-    req.body;
+  const { name, category } = req.body;
 
   let emptyFields = [];
 
@@ -39,37 +38,78 @@ const createStockInfo = async (req, res) => {
   if (!category) {
     emptyFields.push("category");
   }
-  if (!variants) {
-    emptyFields.push("variants");
-  }
-  if (!quantity) {
-    emptyFields.push("quantity");
-  }
-  if (!price) {
-    emptyFields.push("price");
-  }
-  if (!totalPrice) {
-    emptyFields.push("totalPrice");
-  }
-  if (!imageUrl) {
-    emptyFields.push("imageUrl");
-  }
 
   if (emptyFields.length > 0) {
     return res.status(400).json({ error: "Please fill all the fields" });
   }
 
   try {
-    const stockInfo = await StockInfo.create({
-      name,
-      category,
-      variants,
-      quantity,
-      price,
-      totalPrice,
-      imageUrl,
-    });
-    res.status(201).json(stockInfo);
+    if (req.file && req.file.path) {
+      const product = new StockInfo({
+        name: req.body.name,
+        category: req.body.category,
+        imageUrl: req.file.path,
+      });
+      await product.save();
+
+      return res.status(201).json({ message: "Product saved successfully" });
+    } else {
+      return res.status(422).json({ error: "there is an error with picture" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const createVariant = async (req, res) => {
+  const obj = {};
+  parentId = req.body.parentId;
+  obj.name = req.body.name;
+  obj.category = req.body.category;
+  obj.quantity = req.body.quantity;
+  obj.price = req.body.price;
+  obj.size = req.body.size;
+  obj.color = req.body.color;
+  obj.technicalSpecifications = req.body.technicalSpecifications;
+  obj.features = req.body.features;
+  obj.description = req.body.description;
+  obj.images = [];
+
+  req.files.forEach((el) => obj.images.push(el.path));
+
+  const emptyError = _.values(obj).every(_.isEmpty);
+
+  if (emptyError) {
+    return res.status(400).json({ error: "Please fill all the fields" });
+  }
+
+  try {
+    const parentProduct = await StockInfo.findById(parentId);
+    if (!parentProduct) {
+      return res
+        .status(204)
+        .json({ error: `No such product exist with the id of ${parentId}` });
+    }
+
+    let totalPrice = _.sumBy(
+      parentProduct.variants,
+      (el) => el.quantity * el.price
+    );
+
+    totalPrice += Number(obj.price) * Number(obj.quantity);
+
+    let totalquantity = _.sumBy(parentProduct.variants, (el) => el.quantity);
+
+    totalquantity += Number(obj.quantity);
+
+    const newParent = await StockInfo.updateOne(
+      { _id: parentId },
+      {
+        $set: { totalPrice, quantity: totalquantity },
+        $push: { variants: obj },
+      }
+    );
+    res.status(201).json({ message: "Variant saved successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -103,13 +143,39 @@ const deleteStockInfo = async (req, res) => {
     if (stockInfo) {
       res
         .status(200)
-        .json({ msg: "stockInfo deleted successfully", stockInfo });
+        .json({ message: "stockInfo deleted successfully", stockInfo });
     } else {
       res.status(404).json({ message: "stockInfo not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+const deleteVariant = async (req, res) => {
+  try {
+    const { id, variantId } = req.params;
+
+    const product = await StockInfo.findById(id);
+    const variants = _.filter(product.variants, (el) => el._id !== variantId);
+
+    let totalPrice = _.sumBy(variants, (el) => el.quantity * el.price);
+
+    let quantity = _.sumBy(variants, (el) => el.quantity);
+
+    const response = await StockInfo.updateOne(
+      { _id: id },
+      {
+        $pull: { variants: { _id: variantId } },
+        $set: { totalPrice, quantity },
+      }
+    );
+    if (response) {
+      res.status(200).json({ message: "Variant deleted successfully" });
+    } else {
+      res.status(404).json({ message: "Variant not found" });
+    }
+  } catch (error) {}
 };
 
 const searchStockInfo = async (req, res) => {
@@ -124,7 +190,7 @@ const searchStockInfo = async (req, res) => {
       return res.status(200).json({ data: stockInfo });
     }
 
-    res.status(404).json({ msg: "ther's no such stockInfo" });
+    res.status(404).json({ message: "ther's no such stockInfo" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -133,9 +199,10 @@ const searchStockInfo = async (req, res) => {
 module.exports = {
   getAllStockInfos,
   createStockInfo,
-  getStockInfoById, 
+  getStockInfoById,
   updateStockInfo,
   deleteStockInfo,
   searchStockInfo,
+  createVariant,
+  deleteVariant,
 };
-

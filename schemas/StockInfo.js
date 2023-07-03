@@ -19,27 +19,30 @@ const variantSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    required: true,
   },
-  technicalSpecifications: [{
-    type: String,
-    required: true,
-  }],
-  features: [{
-    type: String,
-    required: true,
-  }],
+  technicalSpecifications: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
+  features: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
   description: {
     type: String,
     required: true,
   },
-  images: [{
-    type: String,
-    required: true,
-  }],
+  images: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
 });
-
-
 
 const stockInfoSchema = new mongoose.Schema({
   name: {
@@ -53,19 +56,15 @@ const stockInfoSchema = new mongoose.Schema({
   },
   quantity: {
     type: Number,
-    required: true,
   },
   price: {
     type: Number,
-    required: true,
   },
   totalPrice: {
     type: Number,
-    required: true,
   },
   imageUrl: {
     type: String,
-    required: true,
   },
 });
 
