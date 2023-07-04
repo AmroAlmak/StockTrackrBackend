@@ -119,16 +119,16 @@ const createVariant = async (req, res) => {
 const updateStockInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, variants, quantity, price, totalPrice } = req.body;
+    const { name, category } = req.body;
     const stockInfo = await StockInfo.findByIdAndUpdate(
       id,
-      { name, category, variants, quantity, price, totalPrice },
+      { name, category },
       { new: true }
     );
     if (stockInfo) {
       res
         .status(200)
-        .json({ msg: "stockInfo updated successfully", stockInfo });
+        .json({ message: "stockInfo updated successfully", stockInfo });
     } else {
       res.status(404).json({ message: "stockInfo not found" });
     }
