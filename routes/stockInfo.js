@@ -12,6 +12,7 @@ const {
   searchStockInfo,
   createVariant,
   deleteVariant,
+  updateVariant,
 } = require("../controllers/stockInfo");
 
 const requireAuth = require("../middlewares/requireAuth");
@@ -22,6 +23,7 @@ router.post("/", upload.single("picture"), createStockInfo);
 
 router.post("/variant", upload.array("picture"), createVariant);
 router.delete("/variant/:id/:variantId", deleteVariant);
+router.put("/variant/:id/:variantId", updateVariant);
 
 router.route("/product/:id").get(getStockInfoById);
 
