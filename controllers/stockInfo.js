@@ -1,5 +1,6 @@
 const _ = require("lodash");
-const StockInfo = require("../schemas/StockInfo");
+const { StockInfo, VariantInfo } = require("../schemas/StockInfo");
+
 const mongoose = require("mongoose");
 
 const getAllStockInfos = async (req, res) => {
@@ -153,24 +154,58 @@ const deleteStockInfo = async (req, res) => {
   }
 };
 
+const updateVariant = async (req, res) => {
+  const { id, variantId } = req.params;
+  try {
+    const product = await StockInfo.findOneAndUpdate(
+      { _id: id, "variants._id": variantId },
+      { $set: { "variants.$": req.body } },
+      { new: true }
+    );
+
+    const secondProduct = await StockInfo.findOne({ _id: id });
+
+    const variants = secondProduct.variants;
+
+    let totalPrice = _.sumBy(variants, (el) => el.quantity * el.price);
+
+    let quantity = _.sumBy(variants, (el) => el.quantity);
+
+    secondProduct.totalPrice = totalPrice;
+    secondProduct.quantity = quantity;
+
+    const response = await secondProduct.save();
+
+    if (response) {
+      res
+        .status(200)
+        .json({ message: "Variant updated successfully", response });
+    } else {
+      res.status(404).json({ message: "Variant not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const deleteVariant = async (req, res) => {
   const { id, variantId } = req.params;
 
-  const result = await StockInfo.findOne(
-    { "variants._id": variantId },
-    { "variants.$": 1 }
-  );
-
-  const product = await StockInfo.findById(id);
-
-  let totalPrice = _.sumBy(product.variants, (el) => el.quantity * el.price);
-
-  totalPrice -= result.variants[0].quantity * result.variants[0].price;
-
-  let quantity = _.sumBy(product.variants, (el) => el.quantity);
-  quantity -= result.variants[0].quantity;
-
   try {
+    const result = await StockInfo.findOne(
+      { "variants._id": variantId },
+      { "variants.$": 1 }
+    );
+
+    const product = await StockInfo.findById(id);
+
+    let totalPrice = _.sumBy(product.variants, (el) => el.quantity * el.price);
+
+    totalPrice -= result.variants[0].quantity * result.variants[0].price;
+
+    let quantity = _.sumBy(product.variants, (el) => el.quantity);
+    quantity -= result.variants[0].quantity;
+
     const response = await StockInfo.updateOne(
       { _id: id },
       {
@@ -215,4 +250,5 @@ module.exports = {
   searchStockInfo,
   createVariant,
   deleteVariant,
+  updateVariant,
 };

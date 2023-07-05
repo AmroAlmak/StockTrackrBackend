@@ -68,4 +68,7 @@ const stockInfoSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("StockInfo", stockInfoSchema);
+const StockInfo = mongoose.model("StockInfo", stockInfoSchema);
+const VariantInfo = mongoose.model("VariantInfo", variantSchema);
+
+module.exports = { StockInfo, VariantInfo };
