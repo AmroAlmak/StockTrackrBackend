@@ -30,7 +30,7 @@ const getStockInfoById = async (req, res) => {
 };
 
 const createStockInfo = async (req, res) => {
-  const { name, category } = req.body;
+  const { name, category, quantity } = req.body;
 
   let emptyFields = [];
 
@@ -39,6 +39,9 @@ const createStockInfo = async (req, res) => {
   }
   if (!category) {
     emptyFields.push("category");
+  }
+  if (typeof quantity !== "number" || quantity < 0) {
+    emptyFields.push("quantity");
   }
 
   if (emptyFields.length > 0) {
