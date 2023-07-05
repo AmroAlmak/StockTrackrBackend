@@ -40,11 +40,11 @@ const createStockInfo = async (req, res) => {
   if (!category) {
     emptyFields.push("category");
   }
-  if (typeof quantity !== "number" || quantity < 0) {
+  if (typeof quantity !== "number" || quantity == 0) {
     emptyFields.push("quantity");
   }
 
-  if (emptyFields.length > 0) {
+  if (emptyFields.length == 0) {
     return res.status(400).json({ error: "Please fill all the fields" });
   }
 
